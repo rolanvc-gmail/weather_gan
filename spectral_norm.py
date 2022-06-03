@@ -60,18 +60,16 @@ class SpectralNorm(nn.Module):
         Retrieve, update, and store the module's parameters.
         :return:
         """
+
         u = getattr(self.module, self.name + "_u")
         v = getattr(self.module, self.name + "_v")
         w = getattr(self.module, self.name + "_bar")
         height = w.data.shape[0]
-
-        for _ in range(self.power_iterations):
+        for i in range(self.power_iterations):
             v_data = l2normalize(torch.mv(torch.t(w.view(height, -1).data), u.data))
-            u_data = l2normalize(torch.mv(w.view(height, -1).data), u.data))
-
+            u_data = l2normalize(torch.mv(w.view(height, -1).data), u.data)
         sigma = u.dot(w.view(height, -1).mv(v))
-        setattr(self.module, self.name, w/sigma.expand_as(w))
-
+        setattr(self.module, self.name, w / sigma.expand_as(w))
 
     def forward(self, *args):
         self._update_u_v()
