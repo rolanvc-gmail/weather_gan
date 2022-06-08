@@ -1,4 +1,5 @@
-
+import torch
+from torch.nn.modules.pixelshuffle import PixelUnshuffle
 
 def space_to_depth(tensor, scale_factor):
     """
@@ -21,3 +22,17 @@ def space_to_depth(tensor, scale_factor):
     tensor = tensor.reshape([num, scale_factor * scale_factor, ch, new_height, new_width])
     return tensor
 
+
+def main():
+    x = torch.rand((2, 4, 8, 16))
+    y = space_to_depth(x, scale_factor=2)
+    print("old shape is{}. new shape is{}".format(x.shape, y.shape))
+    s2d = PixelUnshuffle(downscale_factor=2)
+    y2 = s2d(x)
+    print("old shape is{}. new shape is{}".format(x.shape, y2.shape))
+    print(y, y2)
+
+
+
+if __name__ == "__main__":
+    main()

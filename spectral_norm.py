@@ -54,7 +54,6 @@ class SpectralNorm(nn.Module):
         self.module.register_parameter(self.name + "_v", v)
         self.module.register_parameter(self.name + "_bar", w_bar)
 
-
     def _update_u_v(self):
         """
         Retrieve, update, and store the module's parameters.

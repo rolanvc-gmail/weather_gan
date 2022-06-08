@@ -56,6 +56,7 @@ def test_g_block():
 
 def main():
     test_g_block()
+    print("GBLock....passed")
 
 
 if __name__ == "__main__":
