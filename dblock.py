@@ -39,7 +39,7 @@ class DBlock(nn.Module):
 
         self.conv_1x1 = SpectralNorm(convXD(input_channels, output_channels, kernel_size=1))
         self.first_conv_3x3 = SpectralNorm(convXD(input_channels, input_channels, kernel_size=3, stride=1, padding=1))
-        self.second_conv_3x3 = SpectralNorm(nn.Conv2d(input_channels, output_channels, kernel_size=3, stride=1, padding=1))
+        self.second_conv_3x3 = SpectralNorm(convXD(input_channels, output_channels, kernel_size=3, stride=1, padding=1))
 
     def forward(self, x):
         """
