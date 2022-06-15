@@ -9,7 +9,7 @@ class GBlock(nn.Module):
     """
     GBlock
     """
-    def __init__(self, in_channels: int = 12, out_channels: int = 12, conv_type="standard", spectral_normalized_eps=0.0001):
+    def __init__(self, input_channels: int = 12, output_channels: int = 12, conv_type="standard", spectral_normalized_eps=0.0001):
         """
 
         :param in_channels:
@@ -18,16 +18,16 @@ class GBlock(nn.Module):
         :param spectral_normalized_eps:
         """
         super(GBlock, self).__init__()
-        self.input_channels = in_channels
-        self.output_channels = out_channels
-        self.bn1 = nn.BatchNorm2d(in_channels)
-        self.bn2 = nn.BatchNorm2d(in_channels)
+        self.input_channels = input_channels
+        self.output_channels = output_channels
+        self.bn1 = nn.BatchNorm2d(input_channels)
+        self.bn2 = nn.BatchNorm2d(input_channels)
         self.relu = nn.ReLU()
         convxd = get_conv_layer(conv_type)
         self.up_sample = nn.UpsamplingBilinear2d(scale_factor=2)
-        self.conv_1x1 = SpectralNorm(convxd(in_channels, out_channels, kernel_size=1), eps = spectral_normalized_eps)
-        self.first_3x3_conv = SpectralNorm(convxd(in_channels, out_channels, kernel_size=3, stride=1, padding=1), eps=spectral_normalized_eps)
-        self.second_3x3_conv = SpectralNorm(convxd(in_channels, out_channels, kernel_size=3, stride=1, padding=1), eps=spectral_normalized_eps)
+        self.conv_1x1 = SpectralNorm(convxd(input_channels, output_channels, kernel_size=1), eps=spectral_normalized_eps)
+        self.first_3x3_conv = SpectralNorm(convxd(input_channels, output_channels, kernel_size=3, stride=1, padding=1), eps=spectral_normalized_eps)
+        self.second_3x3_conv = SpectralNorm(convxd(input_channels, output_channels, kernel_size=3, stride=1, padding=1), eps=spectral_normalized_eps)
 
     def forward(self, x):
         x1 = self.conv_1x1(x)
