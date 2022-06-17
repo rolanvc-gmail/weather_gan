@@ -111,7 +111,7 @@ class Sampler(nn.Module):
 
         # Layer 4 (bottom most)
         hidden_states = self.convGRU1(hidden_states, init_states[3])
-        hidden_states = [self.gru_conv_1x1_1(h) for h in hidden_states]
+        hidden_states = [self.gru_conv_1x1(h) for h in hidden_states]
         hidden_states = [self.g1(h) for h in hidden_states]
         hidden_states = [self.up_g1(h) for h in hidden_states]
 
