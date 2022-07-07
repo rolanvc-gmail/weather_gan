@@ -69,7 +69,7 @@ class DGMR(pl.LightningModule):
         self.discriminator = Discriminator(input_channels)
         self.save_hyperparameters()
 
-        self.automatic_optimization = False
+        self.automatic_optimization = False  # Use PyLightning's Manual Optimization.
         torch.autograd.set_detect_anomaly(True)
 
     def forward(self, x):
@@ -94,9 +94,9 @@ class DGMR(pl.LightningModule):
 
             concatenated_outputs = self.discriminator(concatenated_inputs)
             score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
-            discriminator_loss = loss_hinge_disc(score_generated, score_real)  # Todo: understand this loss function.
+            discriminator_loss = loss_hinge_disc(score_generated, score_real)  # Discriminator Loss
             d_opt.zero_grad()
-            self.manual_backward(discriminator_loss)  # manual_backward is from pytorch lightning
+            self.manual_backward(discriminator_loss)
             d_opt.step()
 
         # Optimize generator
@@ -114,10 +114,10 @@ class DGMR(pl.LightningModule):
             score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
             generated_scores.append(score_generated)
 
-        generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
+        generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))  # Generator loss
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg
         g_opt.zero_grad()
-        self.manual_backward(generator_loss)   # manual_backward is from pytorch lightning
+        self.manual_backward(generator_loss)
         g_opt.step()
 
         generated_images = self(images)

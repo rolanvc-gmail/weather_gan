@@ -6,6 +6,10 @@ from SpatialDiscriminator import SpatialDiscriminator
 
 
 class Discriminator(nn.Module):
+    """
+    The Discriminator has 2 components: the SpatialDiscriminator, and the TemporalDiscriminator. When data is passed through,
+    the data is input to both separately, then results are concatenated. The shape of the output is batch x 2 x 1.
+    """
     def __init__(self, input_channels: int = 12, num_spatial_frames: int = 8, conv_type: str = "standard", **kwargs):
         super(Discriminator, self).__init__()
         config = locals()
@@ -23,6 +27,7 @@ class Discriminator(nn.Module):
         spatial_loss = self.spatial_discriminator(x)
         temporal_loss = self.temporal_discriminator(x)
 
+        # spatial_loss and temporal_loss are both Tensor(2,1,1)
         return torch.cat([spatial_loss, temporal_loss], dim=1)
 
 
