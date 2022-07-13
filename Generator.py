@@ -9,7 +9,7 @@ from Sampler import Sampler
 class Generator(nn.Module):
     def __init__(self, conditioning_stack: nn.Module, latent_stack: nn.Module, sampler: nn.Module):
         """
-        
+            The Generator expects input of (batch, 4, 1, 256, 256) and outputs (batch, 18, 1, 256, 256)
         :param conditioning_stack: 
         :param latent_stack: 
         :param sampler: 
