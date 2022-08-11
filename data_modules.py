@@ -92,7 +92,9 @@ class RadarDataset(Dataset):
         month, prev_months_total = self.get_month_from_idx(idx)
         day, prev_days_total = self.get_day_from_idx_and_month(idx, month, prev_months_total)
         data = self.get_data_from_idx_month_and_day(idx, month, day, prev_days_total)
-        return data
+        images = data[:4]
+        target = data[4:]
+        return images, target
 
 
 def test_radar_dataset():
@@ -101,6 +103,7 @@ def test_radar_dataset():
     idx = random.randrange(0, size)
     data = the_data.__getitem__(idx)
     assert data.shape == (22, 256, 256, 1)
+
 
 def main():
     test_radar_dataset()

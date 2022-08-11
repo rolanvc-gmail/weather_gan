@@ -6,7 +6,10 @@ from LatentConditioningStack import LatentConditioningStack
 from Sampler import Sampler
 from Generator import Generator
 from Discriminator import Discriminator
+from SpatialDiscriminator import SpatialDiscriminator
+from TemporalDiscriminator import TemporalDiscriminator
 import pytorch_lightning as pl
+import random
 
 
 class DGMR(pl.LightningModule):
@@ -66,7 +69,9 @@ class DGMR(pl.LightningModule):
                                contex_channels=self.context_channels)
 
         self.generator = Generator(self.conditioning_stack, self.latent_stack, self.sampler)
-        self.discriminator = Discriminator(input_channels)
+        num_spatial_frames = 8
+        self.spatial_discriminator = SpatialDiscriminator(input_channels=input_channels, num_time_steps=num_spatial_frames, conv_type=conv_type)
+        self.temporal_discriminator = TemporalDiscriminator(input_channels=input_channels, conv_type=conv_type)
         self.save_hyperparameters()
 
         self.automatic_optimization = False  # Use PyLightning's Manual Optimization.
@@ -77,59 +82,60 @@ class DGMR(pl.LightningModule):
         return x
 
     def training_step(self, batch, batch_idx):
-        images, future_images = batch
-        images = images.float()
-        future_images = future_images.float()
+        images_data, target_images = batch # images_data should be 16x4x256x256x1, target_images should be 16x18x256x256x1
+        images_data = images_data.float()
+        target_images = target_images.float()
         self.global_iteration += 1
-        g_opt, d_opt = self.optimizers()
+        g_opt, sd_opt, td_opt = self.optimizers()
 
         # Two discriminator steps per generator step
         for _ in range(2):
-            predictions = self(images)
-            # cat along the time dimension [B, T, C, H, W]
-            generated_sequences = torch.cat([images, predictions], dim=1)
-            real_sequence = torch.cat([images, future_images], dim=1)
-            # cat along batch for real+generated
-            concatenated_inputs = torch.cat([real_sequence, generated_sequences], dim=0)
+            # compute spatial discriminator loss
+            S_sd = random.sample(range(0, 18), 8)
+            predictions = self.generator(images_data)  # predictions should be 16x18x256x256x1
+            sd_score_predictions = self.spatial_discriminator(predictions[:, S_sd])  #  we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
+            sd_score_target_images = self.spatial_discriminator(target_images[:, S_sd])
+            sd_loss = torch.mean(nn.ReLU(1-sd_score_target_images) + nn.ReLU(1+sd_score_predictions))
 
-            concatenated_outputs = self.discriminator(concatenated_inputs)
-            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
-            discriminator_loss = loss_hinge_disc(score_generated, score_real)  # Discriminator Loss
-            d_opt.zero_grad()
-            self.manual_backward(discriminator_loss)
-            d_opt.step()
+            # compute temporal discriminator loss
+            sequence_whole_real = torch.cat((images_data, target_images), dim=1)
+            td_score_whole_real = self.temporal_discriminator(sequence_whole_real)
+            sequence_generated = torch.cat((images_data, predictions), dim=1)
+            td_score_generated = self.temporal_discriminator(sequence_generated)
+            td_loss = torch.mean(nn.ReLU(1-td_score_whole_real) + nn.ReLU(1+td_score_generated))
+
+            # compute discriminator loss
+            d_loss = (sd_loss + td_loss)
+
+            sd_opt.zero_grad()
+            td_opt.zero_grad()
+            self.manual_backward(d_loss)
+            sd_opt.step()
+            td_opt.step()
 
         # Optimize generator
-        predictions = [self(images) for _ in range(6)]
-        grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
-        # Concat along time dimension
-        generated_sequences = [torch.cat([images, x], dim=1) for x in predictions]
-        real_sequence = torch.cat([images, future_images], dim=1)
-        # cat long batch for the real+generated, for each example in the range
-        # For each of the 6 examples
-        generated_scores = []
-        for g_seq in generated_sequences:
-            concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
-            concatenated_outputs = self.discriminator(concatenated_inputs)
-            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
-            generated_scores.append(score_generated)
+        gen_predictions = self.generator(images_data)
+        sd_fake_predictions = self.sd(gen_predictions)
+        gen_td_data = torch.cat([images_data, gen_predictions], dim=1)
+        td_predictions = self.td(gen_td_data)
 
-        generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))  # Generator loss
-        generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg
+        # R_Loss
+        r_loss_sum = 0
+
+        g_loss = -(torch.mean(sd_fake_predictions) + torch.mean(td_predictions)) + r_loss_sum
         g_opt.zero_grad()
-        self.manual_backward(generator_loss)
+        self.manual_backward(g_loss)
         g_opt.step()
-
-        generated_images = self(images)
 
     def configure_optimizers(self):
         b1 = self.beta1
         b2 = self.beta2
 
         opt_g = torch.optim.Adam(self.generator.parameters(), lr=self.gen_lr, betas=(b1, b2))
-        opt_d = torch.optim.Adam(self.discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
+        opt_sd = torch.optim.Adam(self.spatial_discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
+        opt_td = torch.optim.Adam(self.spatial_discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
 
-        return [opt_g, opt_d], []
+        return [opt_g, opt_sd, opt_td], []
 
 
 

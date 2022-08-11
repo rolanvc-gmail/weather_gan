@@ -94,10 +94,10 @@ class SpatialDiscriminator(nn.Module):
 
 def test_spatial_discriminator():
     model = SpatialDiscriminator(input_channels=1)
-    x = torch.rand((2, 18, 1, 256, 256))
+    x = torch.rand((16, 18, 1, 256, 256))
     out = model(x)
-    assert out.shape == (2, 1, 1)
-    y = torch.rand((2, 1, 1))
+    assert out.shape == (16, 1, 1)
+    y = torch.rand((16, 1, 1))
     loss = F.mse_loss(y, out)
     loss.backward()
     assert not torch.isnan(out).any()
