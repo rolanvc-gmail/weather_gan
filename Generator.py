@@ -38,7 +38,7 @@ def test_generator():
     sampler = Sampler(forecast_steps=forecast_steps, latent_channels=latent_channels, context_channels=context_channels)
 
     model = Generator(conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler)
-    x = torch.rand((2, 4, 1, 256, 256))
+    x = torch.rand((16, 4, 1, 256, 256))
     out = model(x)
     assert out.shape == (2, 18, 1, 256, 256)
     y = torch.rand((2, 18, 1, 256, 256))

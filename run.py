@@ -7,20 +7,17 @@ from pytorch_lightning import Trainer, LightningDataModule
 from torch.utils.data import DataLoader
 
 
-class DGMRDataModule(LightningDataModule):
-    def __init__(self):
-        self.dataset = RadarDataset()
-
-    def train_dataloader(self) -> TRAIN_DATALOADERS:
-        dataloader = DataLoader(self.dataset, batch_size=16)
-        return dataloader
-
 
 def main():
-    datamodule = DGMRDataModule()
-    model = DGMR()
-    trainer = Trainer()
-    trainer.fit(model, datamodule)
+    dgmr = DGMR()
+    radar_dataset = RadarDataset()
+    train_dataloader = DataLoader(radar_dataset, batch_size=16, shuffle=True)
+
+    for b in range(2000):
+        print("Step # {}".format(b))
+        batch_data = next(iter(train_dataloader))
+        dgmr.training_step(batch_data)
+
 
 
 if __name__ == "__main__":

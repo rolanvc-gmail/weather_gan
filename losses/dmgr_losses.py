@@ -54,7 +54,7 @@ def grid_cell_regularizer(generated_samples, batch_targets):
     """
     gen_mean = torch.mean(generated_samples, dim=0)
     weights = torch.clip(batch_targets, 0.0, 24.0)
-    loss = torch.mean(torch.abs(gen_mean - batch_targets)* weights)
+    loss = torch.mean(torch.abs(gen_mean - batch_targets) * weights)
     return loss
 
 

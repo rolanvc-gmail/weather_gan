@@ -1,18 +1,16 @@
 import torch
 from torch import nn
-from losses.dmgr_losses import NowcastingLoss, GridCellLoss, loss_hinge_disc, grid_cell_regularizer, loss_hinge_gen
+from losses.dmgr_losses import grid_cell_regularizer
 from ConditioningStack import ConditioningStack
 from LatentConditioningStack import LatentConditioningStack
 from Sampler import Sampler
 from Generator import Generator
-from Discriminator import Discriminator
 from SpatialDiscriminator import SpatialDiscriminator
 from TemporalDiscriminator import TemporalDiscriminator
-import pytorch_lightning as pl
 import random
 
 
-class DGMR(pl.LightningModule):
+class DGMR:
     """
     Deep Generative Model of Radar
     """
@@ -51,8 +49,6 @@ class DGMR(pl.LightningModule):
         self.disc_lr = disc_lr
         self.beta1 = beta1
         self.beta2 = beta2
-        self.discriminator_loss = NowcastingLoss()  # Todo : figure this out.
-        self.grid_regularizer = GridCellLoss()  # Todo : figure this out.
         self.grid_lambda = grid_lambda
         self.num_samples = num_samples
         self.latent_channels = latent_channels
@@ -72,7 +68,6 @@ class DGMR(pl.LightningModule):
         num_spatial_frames = 8
         self.spatial_discriminator = SpatialDiscriminator(input_channels=input_channels, num_time_steps=num_spatial_frames, conv_type=conv_type)
         self.temporal_discriminator = TemporalDiscriminator(input_channels=input_channels, conv_type=conv_type)
-        self.save_hyperparameters()
 
         self.automatic_optimization = False  # Use PyLightning's Manual Optimization.
         torch.autograd.set_detect_anomaly(True)
@@ -81,20 +76,19 @@ class DGMR(pl.LightningModule):
         x = self.generator(x)
         return x
 
-    def training_step(self, batch, batch_idx):
-        images_data, target_images = batch # images_data should be 16x4x256x256x1, target_images should be 16x18x256x256x1
+    def training_step(self, batch):
+        images_data, target_images = batch  # images_data should be 16x4x256x256x1, target_images should be 16x18x256x256x1
         images_data = images_data.float()
         target_images = target_images.float()
-        self.global_iteration += 1
-        g_opt, sd_opt, td_opt = self.optimizers()
+        g_opt, sd_opt, td_opt = self.configure_optimizers()
 
         # Two discriminator steps per generator step
         for _ in range(2):
             # compute spatial discriminator loss
-            S_sd = random.sample(range(0, 18), 8)
+            s_sd = random.sample(range(0, 18), 8)
             predictions = self.generator(images_data)  # predictions should be 16x18x256x256x1
-            sd_score_predictions = self.spatial_discriminator(predictions[:, S_sd])  #  we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
-            sd_score_target_images = self.spatial_discriminator(target_images[:, S_sd])
+            sd_score_predictions = self.spatial_discriminator(predictions[:, s_sd])  # we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
+            sd_score_target_images = self.spatial_discriminator(target_images[:, s_sd])
             sd_loss = torch.mean(nn.ReLU(1-sd_score_target_images) + nn.ReLU(1+sd_score_predictions))
 
             # compute temporal discriminator loss
@@ -109,22 +103,22 @@ class DGMR(pl.LightningModule):
 
             sd_opt.zero_grad()
             td_opt.zero_grad()
-            self.manual_backward(d_loss)
+            d_loss.backward()
             sd_opt.step()
             td_opt.step()
 
         # Optimize generator
         gen_predictions = self.generator(images_data)
-        sd_fake_predictions = self.sd(gen_predictions)
+        sd_fake_predictions = self.spatial_discriminator(gen_predictions)
         gen_td_data = torch.cat([images_data, gen_predictions], dim=1)
-        td_predictions = self.td(gen_td_data)
+        td_predictions = self.temporal_discriminator(gen_td_data)
 
         # R_Loss
-        r_loss_sum = 0
+        grid_cell_reg = grid_cell_regularizer(torch.stack(gen_predictions, dim=0), target_images)
 
-        g_loss = -(torch.mean(sd_fake_predictions) + torch.mean(td_predictions)) + r_loss_sum
+        g_loss = -(torch.mean(sd_fake_predictions) + torch.mean(td_predictions)) + self.grid_lambda * grid_cell_reg
         g_opt.zero_grad()
-        self.manual_backward(g_loss)
+        g_loss.backward()
         g_opt.step()
 
     def configure_optimizers(self):
@@ -135,12 +129,4 @@ class DGMR(pl.LightningModule):
         opt_sd = torch.optim.Adam(self.spatial_discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
         opt_td = torch.optim.Adam(self.spatial_discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
 
-        return [opt_g, opt_sd, opt_td], []
-
-
-
-
-
-
-
-
+        return [opt_g, opt_sd, opt_td]
