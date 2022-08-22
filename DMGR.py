@@ -8,9 +8,10 @@ from Generator import Generator
 from SpatialDiscriminator import SpatialDiscriminator
 from TemporalDiscriminator import TemporalDiscriminator
 import random
+from torch import nn
 
 
-class DGMR:
+class DGMR(nn.Module):
     """
     Deep Generative Model of Radar
     """
@@ -78,8 +79,8 @@ class DGMR:
 
     def training_step(self, batch):
         images_data, target_images = batch  # images_data should be 16x4x256x256x1, target_images should be 16x18x256x256x1
-        images_data = images_data.float()
-        target_images = target_images.float()
+        images_data = images_data.float().cuda()
+        target_images = target_images.float().cuda()
         g_opt, sd_opt, td_opt = self.configure_optimizers()
 
         # Two discriminator steps per generator step

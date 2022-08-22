@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader
 
 
 def main():
-    dgmr = DGMR()
+    dgmr = DGMR().cuda()
     radar_dataset = RadarDataset()
+
     train_dataloader = DataLoader(radar_dataset, batch_size=16, shuffle=True)
 
     for b in range(2000):

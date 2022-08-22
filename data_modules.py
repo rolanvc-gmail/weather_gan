@@ -6,6 +6,7 @@ from torch.utils.data.dataset import Dataset
 from data.data_stats import gather_stats
 from process_data import dest_folder_npy
 from typing import Any, Tuple
+from einops import rearrange
 
 
 class RadarDataset(Dataset):
@@ -80,7 +81,7 @@ class RadarDataset(Dataset):
     def __getitem__(self, idx):
         """
         :param idx: the item index
-        :return: a np.array of size 22 x 256 x 256 x 1
+        :return:
         """
         # Given item index, find the month.
         month, prev_months_total = self.get_month_from_idx(idx)
@@ -92,8 +93,10 @@ class RadarDataset(Dataset):
         data = self.get_data_from_idx_month_and_day(idx, month, day, prev_days_total)
 
         images = data[:4]
+        images_fixed = rearrange(images, 'seq h w c->seq c h w')
         target = data[4:]
-        return images, target
+        target_fixed = rearrange(target, 'seq h w c->seq c h w')
+        return images_fixed, target_fixed
 
 
 def test_radar_dataset():
@@ -102,8 +105,8 @@ def test_radar_dataset():
     # idx = random.randrange(0, size)
     idx = 8645
     inputs, targets = the_data.__getitem__(idx)
-    assert inputs.shape == (4, 256, 256, 1)
-    assert targets.shape == (18, 256, 256, 1)
+    assert inputs.shape == (4, 1, 256, 256)
+    assert targets.shape == (18, 1, 256, 256)
     print("Success")
 
 

@@ -37,17 +37,19 @@ def test_generator():
     latent_stack = LatentConditioningStack(shape=(8 * input_channels, output_shape // 32, output_shape // 32), output_channels=latent_channels)
     sampler = Sampler(forecast_steps=forecast_steps, latent_channels=latent_channels, context_channels=context_channels)
 
-    model = Generator(conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler)
-    x = torch.rand((16, 4, 1, 256, 256))
+    model = Generator(conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler).cuda()
+    x = torch.rand((4, 4, 1, 256, 256)).cuda()
     out = model(x)
-    assert out.shape == (2, 18, 1, 256, 256)
-    y = torch.rand((2, 18, 1, 256, 256))
-    loss = F.mse_loss(y, out)
+    assert out.shape == (4, 18, 1, 256, 256)
+    y = torch.rand((4, 18, 1, 256, 256)).cuda()
+    loss = F.mse_loss(y, out).cuda()
     loss.backward()
     assert not torch.isnan(out).any()
 
 
 def main():
+    if torch.cuda.is_available():
+        print("Device:{}".format(torch.cuda.get_device_properties(0)))
     test_generator()
     print("Generator passed unit test.")
 
