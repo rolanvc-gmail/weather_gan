@@ -1,9 +1,7 @@
 from abc import ABC
 
-from pytorch_lightning.utilities.types import TRAIN_DATALOADERS, EVAL_DATALOADERS
 from DMGR import DGMR
 from data_modules import RadarDataset
-from pytorch_lightning import Trainer, LightningDataModule
 from torch.utils.data import DataLoader
 
 

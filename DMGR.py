@@ -90,14 +90,14 @@ class DGMR(nn.Module):
             predictions = self.generator(images_data)  # predictions should be 16x18x256x256x1
             sd_score_predictions = self.spatial_discriminator(predictions[:, s_sd])  # we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
             sd_score_target_images = self.spatial_discriminator(target_images[:, s_sd])
-            sd_loss = torch.mean(nn.ReLU(1-sd_score_target_images) + nn.ReLU(1+sd_score_predictions))
+            sd_loss = torch.mean(nn.ReLU()(1-sd_score_target_images) + nn.ReLU()(1+sd_score_predictions))
 
             # compute temporal discriminator loss
             sequence_whole_real = torch.cat((images_data, target_images), dim=1)
             td_score_whole_real = self.temporal_discriminator(sequence_whole_real)
             sequence_generated = torch.cat((images_data, predictions), dim=1)
             td_score_generated = self.temporal_discriminator(sequence_generated)
-            td_loss = torch.mean(nn.ReLU(1-td_score_whole_real) + nn.ReLU(1+td_score_generated))
+            td_loss = torch.mean(nn.ReLU()(1-td_score_whole_real) + nn.ReLU()(1+td_score_generated))
 
             # compute discriminator loss
             d_loss = (sd_loss + td_loss)
@@ -115,7 +115,7 @@ class DGMR(nn.Module):
         td_predictions = self.temporal_discriminator(gen_td_data)
 
         # R_Loss
-        grid_cell_reg = grid_cell_regularizer(torch.stack(gen_predictions, dim=0), target_images)
+        grid_cell_reg = grid_cell_regularizer(gen_predictions, target_images)
 
         g_loss = -(torch.mean(sd_fake_predictions) + torch.mean(td_predictions)) + self.grid_lambda * grid_cell_reg
         g_opt.zero_grad()
