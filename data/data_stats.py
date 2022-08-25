@@ -7,6 +7,8 @@ If a day has less, we discard that day. Therefore, we need to find the N that ma
 """
 import os
 import glob
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from process_data import dest_folder_npy
 from typing import Tuple
 import pickle

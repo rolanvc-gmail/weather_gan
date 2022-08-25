@@ -136,8 +136,15 @@ class ConditioningStack(nn.Module):
 
 
 def test_condition_stack():
-    model = ConditioningStack()
-    x = torch.rand((2, 4, 1, 128, 128))
+
+    input_channels: int = 1  # Number of input channels per image
+    conv_type: str = "standard"  # type of convolution to use
+    latent_channels: int = 768  # Number of channels the latent space should be reshaped to.
+    context_channels: int = 384
+
+    conditioning_stack = ConditioningStack(input_channels=input_channels, conv_type=conv_type, output_channels=context_channels)
+    model = ConditioningStack().cuda()
+    x = torch.rand((16, 22, 1, 256, 256))
     out = model(x)
     y = torch.rand((2, 96, 32, 32))
     loss = F.mse_loss(y, out[0])

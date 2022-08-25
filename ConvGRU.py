@@ -9,7 +9,7 @@ class ConvGRU(nn.Module):
         super(ConvGRU, self).__init__()
         self.cell = ConvGRUCell(input_channels, output_channels, kernel_size, sn_eps)
 
-    def forward(self, x:torch.Tensor, hidden_state=None)-> torch.Tensor:
+    def forward(self, x:torch.Tensor, hidden_state=None) -> torch.Tensor:
         outputs = []
         for step in range(len(x)):
             output, hidden_state = self.cell(x[step], hidden_state)

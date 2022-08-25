@@ -38,9 +38,10 @@ def test_generator():
     sampler = Sampler(forecast_steps=forecast_steps, latent_channels=latent_channels, context_channels=context_channels)
 
     model = Generator(conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler).cuda()
-    x = torch.rand((4, 4, 1, 256, 256)).cuda()
+    batch_sz = 4
+    x = torch.rand((batch_sz, 4, 1, 256, 256)).cuda()
     out = model(x)
-    assert out.shape == (4, 18, 1, 256, 256)
+    assert out.shape == (batch_sz, 18, 1, 256, 256)
     y = torch.rand((4, 18, 1, 256, 256)).cuda()
     loss = F.mse_loss(y, out).cuda()
     loss.backward()

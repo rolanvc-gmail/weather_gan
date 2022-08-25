@@ -14,7 +14,7 @@ def main():
 
     train_dataloader = DataLoader(radar_dataset, batch_size=16, shuffle=True)
 
-    for b in range(2000):
+    for b in range(2):
         print("Step # {}".format(b))
         batch_data = next(iter(train_dataloader))
         dgmr.training_step(batch_data)

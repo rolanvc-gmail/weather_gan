@@ -97,6 +97,7 @@ class DGMR(nn.Module):
             td_score_whole_real = self.temporal_discriminator(sequence_whole_real)
             sequence_generated = torch.cat((images_data, predictions), dim=1)
             td_score_generated = self.temporal_discriminator(sequence_generated)
+
             td_loss = torch.mean(nn.ReLU(1-td_score_whole_real) + nn.ReLU(1+td_score_generated))
 
             # compute discriminator loss
