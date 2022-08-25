@@ -9,9 +9,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-source_folder = "/home/rolan/data1/Weather-Datasets/weather_data/weather_data/batch1/Radar/2019/Subic/subic_p/"
-dest_folder_npy = "/home/rolan/data1/Weather-Datasets/npy-data/"
-dest_folder_png = "/home/rolan/data1/Weather-Datasets/png-data/"
+source_folder = "/weather_data/batch1/Radar/2019/Subic/subic_p/"
+dest_folder_npy = "/home/rolan/Weather-Datasets/npy-data/"
+dest_folder_png = "/home/rolan/Weather-Datasets/png-data/"
 vmin = -30
 vmax = 75
 norm = plt.Normalize(vmin, vmax)
@@ -28,13 +28,13 @@ def process_the_file(the_file):
     """
     Write the file as png and npy files in the appropriate folders.
 
-    :param the_file: filename as /home/rolan/data1/Weather-Datasets/weather_data/weather_data/batch1/Radar/2019/Subic/subic_p/month/day/file_id.uf
+    :param the_file: filename as /weather_data/batch1/Radar/2019/Subic/subic_p/month/day/file_id.uf
     :return: None
     """
     f_arr = the_file.split('/')
-    month = f_arr[12]
-    day = f_arr[13]
-    file_id = f_arr[14][:-3]
+    month = f_arr[7]
+    day = f_arr[8]
+    file_id = f_arr[9][:-3]
     """ Create the necessary folders"""
     dest_folder_month_npy = os.path.join(dest_folder_npy, str(month))
     dest_folder_day_npy = os.path.join(dest_folder_npy, str(month), str(day))
@@ -84,7 +84,8 @@ def main():
         print("For month: {}, there are {} days".format(mo, ndays))
         for day in day_folders:
             day_files = glob.glob(os.path.join(day, "*.uf"))
-            for file in day_files:
+            for file in day_files: 
+                print(file)
                 process_the_file(file)
 
 
