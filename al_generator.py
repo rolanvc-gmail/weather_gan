@@ -74,6 +74,7 @@ def test_generator():
     x = torch.rand((batch_sz, 4, 1, 256, 256))
     generator = AlGenerator(24)
     out = generator(x, z)
+    print("out has shape:{}".format(out.shape))
     assert out.shape == (batch_sz, 18, 1, 256, 256)
 
 

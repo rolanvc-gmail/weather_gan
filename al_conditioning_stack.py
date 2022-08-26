@@ -68,22 +68,24 @@ class AlConditioningStack(nn.Module):
 
 
 def test_conditioning_stack():
-    model = AlConditioningStack().cuda()
-    x = torch.rand((16, 22, 1, 256, 256))
+    model = AlConditioningStack(24)
+    batch_sz = 4
+    x = torch.rand((batch_sz, 4, 1, 256, 256))
     out = model(x)
-    y = torch.rand((2, 96, 32, 32))
-    loss = F.mse_loss(y, out[0])
-    loss.backward()
     assert len(out) == 4
-    assert out[0].size() == (2, 96, 32, 32)
-    assert out[1].size() == (2, 192, 16, 16)
-    assert out[2].size() == (2, 384, 8, 8)
-    assert out[3].size() == (2, 768, 4, 4)
+    assert out[0].size() == (batch_sz, 48, 64, 64)
+    assert out[1].size() == (batch_sz, 96, 32, 32)
+    assert out[2].size() == (batch_sz, 192, 16, 16)
+    assert out[3].size() == (batch_sz, 384, 8, 8)
     assert not all(torch.isnan(out[i]).any() for i in range(len(out))), "Output included NaNs"
+    y = torch.rand((batch_sz, 96, 32, 32))
+    loss = F.mse_loss(y, out[1])
+    loss.backward()
 
 
 def main():
     test_conditioning_stack()
+    print("AlConditioningStack passed")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,11 @@
+import torch
 from torch import nn
+import torch.nn.functional as F
 from al_lblock import AlLBlock, SpatialAttention
+import numpy as np
+from torch.autograd import Variable
+cuda = False
+Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
 class AlLCStack(nn.Module):
@@ -23,3 +29,22 @@ class AlLCStack(nn.Module):
         return out
 
 
+def test_latent_conditioning_stack():
+    model = AlLCStack()
+    batch_sz = 4
+    z = Variable(Tensor(np.random.normal(0, 1, (batch_sz, 8, 8, 8))))  # latent variable input for latent conditioning stack
+    out = model(z)
+    assert out.size() == (batch_sz, 768, 8, 8)
+    y = torch.rand((batch_sz, 768, 8, 8))
+    loss = F.mse_loss(y, out)
+    loss.backward()
+    assert not torch.isnan(out).any(), "Output included NaNs"
+
+
+def main():
+    test_latent_conditioning_stack()
+    print("AiLCStack....passed")
+
+
+if __name__ == "__main__":
+    main()
