@@ -1,10 +1,10 @@
 import torch
-from torch import nn
 from losses.dmgr_losses import grid_cell_regularizer
 from ConditioningStack import ConditioningStack
 from LatentConditioningStack import LatentConditioningStack
 from Sampler import Sampler
-from Generator import Generator
+# from Generator import Generator
+from al_generator import AlGenerator
 from SpatialDiscriminator import SpatialDiscriminator
 from TemporalDiscriminator import TemporalDiscriminator
 import random
@@ -65,7 +65,7 @@ class DGMR(nn.Module):
                                latent_channels=self.latent_channels,
                                contex_channels=self.context_channels)
 
-        self.generator = Generator(self.conditioning_stack, self.latent_stack, self.sampler)
+        self.generator = AlGenerator(24)
         num_spatial_frames = 8
         self.spatial_discriminator = SpatialDiscriminator(input_channels=input_channels, num_time_steps=num_spatial_frames, conv_type=conv_type)
         self.temporal_discriminator = TemporalDiscriminator(input_channels=input_channels, conv_type=conv_type)
