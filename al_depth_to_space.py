@@ -1,3 +1,7 @@
+import torch
+import torch.nn
+import torch.nn.functional as F
+
 
 def depth_to_space(tensor, scale_factor):
     num, ch, height, width = tensor.shape
@@ -12,3 +16,7 @@ def depth_to_space(tensor, scale_factor):
     tensor = tensor.reshape([num, new_ch, new_height, new_width])
     return tensor
 
+
+def depth_to_space_1(tensor, scale_factor):
+    return F.pixel_shuffle(tensor, scale_factor)
+    

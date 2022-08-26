@@ -5,10 +5,11 @@ from al_ConvGRU import AlConvGRU
 from torch.autograd import Variable
 from al_conditioning_stack import AlConditioningStack
 from al_spectral_norm import AlSpectralNorm
-from al_depth_to_space import depth_to_space
+from al_depth_to_space import depth_to_space_1 as depth_to_space
 from al_latent_conditioning_stack import AlLCStack
 
-cuda = True if torch.cuda.is_available() else False
+# cuda = True if torch.cuda.is_available() else False
+cuda = False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
@@ -68,10 +69,10 @@ class AlGenerator(nn.Module):
 
 
 def test_generator():
-    batch_sz = 16
+    batch_sz = 4
     z = Variable(Tensor(np.random.normal(0, 1, (batch_sz, 8, 8, 8))))  # latent variable input for latent conditioning stack
-    x = torch.rand((batch_sz, 4, 1, 256, 256)).cuda()
-    generator = AlGenerator(24).cuda()
+    x = torch.rand((batch_sz, 4, 1, 256, 256))
+    generator = AlGenerator(24)
     out = generator(x, z)
     assert out.shape == (batch_sz, 18, 1, 256, 256)
 
