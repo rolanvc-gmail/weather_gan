@@ -9,6 +9,10 @@ from SpatialDiscriminator import SpatialDiscriminator
 from TemporalDiscriminator import TemporalDiscriminator
 import random
 from torch import nn
+from torch.autograd import Variable
+import numpy as np
+cuda = True if torch.cuda.is_available() else False
+Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
 class DGMR(nn.Module):
@@ -87,7 +91,9 @@ class DGMR(nn.Module):
         for _ in range(2):
             # compute spatial discriminator loss
             s_sd = random.sample(range(0, 18), 8)
-            predictions = self.generator(images_data)  # predictions should be 16x18x256x256x1
+
+            z = Variable(Tensor(np.random.normal(0, 1, (16, 8, 8, 8))))  # latent variable input for latent conditioning stack
+            predictions = self.generator(images_data, z)  # predictions should be 16x18x256x256x1
             sd_score_predictions = self.spatial_discriminator(predictions[:, s_sd])  # we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
             sd_score_target_images = self.spatial_discriminator(target_images[:, s_sd])
             sd_loss = torch.mean(nn.ReLU()(1-sd_score_target_images) + nn.ReLU()(1+sd_score_predictions))
@@ -110,7 +116,8 @@ class DGMR(nn.Module):
             td_opt.step()
 
         # Optimize generator
-        gen_predictions = self.generator(images_data)
+        z = Variable(Tensor(np.random.normal(0, 1, (16, 8, 8, 8))))  # latent variable input for latent conditioning stack
+        gen_predictions = self.generator(images_data, z)
         sd_fake_predictions = self.spatial_discriminator(gen_predictions)
         gen_td_data = torch.cat([images_data, gen_predictions], dim=1)
         td_predictions = self.temporal_discriminator(gen_td_data)
