@@ -7,29 +7,17 @@ from al_conditioning_stack import AlConditioningStack
 from al_spectral_norm import AlSpectralNorm
 from al_depth_to_space import depth_to_space_1 as depth_to_space
 from al_latent_conditioning_stack import AlLCStack
-
+from alSampler import AlSampler, AlOutputStack
 # cuda = True if torch.cuda.is_available() else False
 cuda = False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
-###################### OUTPUT STACK ######################
-class OutputStack(nn.Module):
-    def __init__(self, ):
-        super(OutputStack, self).__init__()
-        self.BN = nn.BatchNorm2d(48)
-        self.relu = nn.ReLU()
-        self.conv1 = AlSpectralNorm(nn.Conv2d(48, 4, 1))
-
-    def forward(self, x):
-        x = self.BN(x)
-        x = self.relu(x)
-        x = self.conv1(x)
-        out = depth_to_space(x, 2)
-        return out
+"""
+Generator
+"""
 
 
-###################### GENERATOR ######################
 class AlGenerator(nn.Module):
     def __init__(self, input_channel):
         super(AlGenerator, self).__init__()
@@ -40,7 +28,7 @@ class AlGenerator(nn.Module):
                                  kernel_sizes=3,
                                  num_layers=4,
                                  gb_hidden_size=[384, 192, 96, 48])
-        self.outputStack = OutputStack()
+        self.sampler = AlSampler()
 
     def forward(self, CD_input, LCS_input):
         CD_input = torch.unsqueeze(CD_input, 2)
@@ -49,23 +37,8 @@ class AlGenerator(nn.Module):
         CD_output.reverse()  # to make the largest first
         LCS_output = torch.unsqueeze(LCS_output, 1)
         LCS_outputs = [LCS_output] * 18
+        return self.sampler(LCS_outputs, CD_output)
 
-        for i in range(len(LCS_outputs)):
-            if i == 0:
-                LCS_outputs_data = LCS_outputs[i]
-            else:
-                LCS_outputs_data = torch.cat((LCS_outputs_data, LCS_outputs[i]), 1)  # create list of Z from latent conditioning stack
-
-        gru_output = self.ConvGRU(LCS_outputs_data, CD_output)
-
-        for i in range(gru_output.shape[1]):
-            out = gru_output[:, i]
-            out = self.outputStack(out)
-            if i == 0:
-                pred = out
-            else:
-                pred = torch.cat((pred, out), dim=1)
-        return pred
 
 
 def test_generator():

@@ -20,9 +20,8 @@ but it still generates the correct output (1x768x8x8). **Should investigate this
 
 
 ### Sampler/Output
-* AlGenerator has no sampler, but has code straight into the forward() function. 
-**Maybe I should put it into its own class?** 
-* This is what I'll do next. Putting his code into a alSampler class allows me to create a unit test for it.
+* Revised AlGenerator to move the end code of forward into an `AlSampler` class.
+* will need to investigate the AlSampler class next. 
 * Sampler is a class and seems to generate the correct sizes.
 
 
