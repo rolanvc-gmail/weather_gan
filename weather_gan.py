@@ -725,10 +725,10 @@ def create_dummy_real_sequence_for_gen():
     for i in range(int(BATCHSIZE / REP)):
         img_set = []
         mos = random.choice(train_mos)
-        root = '/home/pancho/data_full/' + str(mos) + '/'
+        root = '/home/rolan/Weather-Datasets/npy-data/' + str(mos) + '/'
         dirs = [ item for item in os.listdir(root) if os.path.isdir(os.path.join(root, item)) ]
         day = random.choice(dirs)
-        d = '/home/pancho/data_full/' + str(mos) + '/' + str(day) + '/'
+        d = '/home/rolan/Weather-Datasets/npy-data/' + str(mos) + '/' + str(day) + '/'
         files = glob.glob(d + '*.npy')
         start = np.random.randint(0, len(files) - 22)
         for j in range(22):
@@ -793,6 +793,7 @@ if __name__ == "__main__":
             ##### train discriminators on fake inputs
             z = Variable(Tensor(np.random.normal(0, 1, (BATCHSIZE ,8 ,8 ,8)))) # latent variable input for latent conditioning stack
             fake_img = g(input_real_1sthalf, z).detach() # fake output of generator x 18
+            print("shape of generator output is: {}".format(fake_img.shape))
             fake_img_2ndhalf_sd = fake_img[:,S] # get input to spatial discriminator from fake images
             sd_pred_fake = sd(fake_img_2ndhalf_sd)
             fake_img_whole_td = torch.cat((input_real_1sthalf, fake_img), dim = 1) # create input to temporal discriminator from fake images
