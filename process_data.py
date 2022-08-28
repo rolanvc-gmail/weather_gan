@@ -8,7 +8,12 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
+# For server
+# source_folder = "/weather_data/batch1/Radar/2019/Subic/subic_p/"
+# dest_folder_npy = "/home/rolan/Weather-Datasets/npy-data/"
+# dest_folder_png = "/home/rolan/Weather-Datasets/png-data/"
 
+# For rvc desktop
 source_folder = "/weather_data/batch1/Radar/2019/Subic/subic_p/"
 dest_folder_npy = "/home/rolan/Weather-Datasets/npy-data/"
 dest_folder_png = "/home/rolan/Weather-Datasets/png-data/"

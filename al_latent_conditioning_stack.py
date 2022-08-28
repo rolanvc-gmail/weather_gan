@@ -31,8 +31,9 @@ class AlLCStack(nn.Module):
 
 def test_latent_conditioning_stack():
     model = AlLCStack()
-    batch_sz = 4
+    batch_sz = 1
     z = Variable(Tensor(np.random.normal(0, 1, (batch_sz, 8, 8, 8))))  # latent variable input for latent conditioning stack
+    assert z.shape == (batch_sz, 8, 8, 8)
     out = model(z)
     assert out.size() == (batch_sz, 768, 8, 8)
     y = torch.rand((batch_sz, 768, 8, 8))
@@ -43,7 +44,7 @@ def test_latent_conditioning_stack():
 
 def main():
     test_latent_conditioning_stack()
-    print("AiLCStack....passed")
+    print("AlLCStack....passed")
 
 
 if __name__ == "__main__":

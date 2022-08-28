@@ -69,7 +69,8 @@ class LatentConditioningStack(nn.Module):
 
 def test_latent_conditioning_stack():
     model = LatentConditioningStack()
-    x = torch.rand((2, 4, 1, 128, 128))
+    batch_sz = 4
+    x = torch.rand((1, 4, 1, 128, 128))
     out = model(x)
     assert out.size() == (1, 768, 8, 8)
     y = torch.rand((1, 768, 8, 8))

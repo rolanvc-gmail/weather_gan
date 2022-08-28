@@ -144,7 +144,8 @@ def test_condition_stack():
 
     conditioning_stack = ConditioningStack(input_channels=input_channels, conv_type=conv_type, output_channels=context_channels)
     model = ConditioningStack().cuda()
-    x = torch.rand((16, 22, 1, 256, 256))
+    batch_size = 4
+    x = torch.rand((batch_size, 22, 1, 256, 256))
     out = model(x)
     y = torch.rand((2, 96, 32, 32))
     loss = F.mse_loss(y, out[0])
