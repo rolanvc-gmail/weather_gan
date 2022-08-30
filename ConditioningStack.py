@@ -142,20 +142,20 @@ def test_condition_stack():
     latent_channels: int = 768  # Number of channels the latent space should be reshaped to.
     context_channels: int = 384
 
-    conditioning_stack = ConditioningStack(input_channels=input_channels, conv_type=conv_type, output_channels=context_channels)
-    model = ConditioningStack().cuda()
+    model = ConditioningStack(input_channels=input_channels, conv_type=conv_type, output_channels=context_channels).cuda()
+    # model = ConditioningStack()
     batch_size = 4
-    x = torch.rand((batch_size, 22, 1, 256, 256))
+    x = torch.rand((batch_size, 4, 1, 256, 256)).cuda()  # input is batch_size, 4 images of 1x256x256
     out = model(x)
-    y = torch.rand((2, 96, 32, 32))
-    loss = F.mse_loss(y, out[0])
-    loss.backward()
     assert len(out) == 4
-    assert out[0].size() == (2, 96, 32, 32)
-    assert out[1].size() == (2, 192, 16, 16)
-    assert out[2].size() == (2, 384, 8, 8)
-    assert out[3].size() == (2, 768, 4, 4)
+    assert out[0].size() == (batch_size, 48, 64, 64)
+    assert out[1].size() == (batch_size, 96, 32, 32)
+    assert out[2].size() == (batch_size, 192, 16, 16)
+    assert out[3].size() == (batch_size, 384, 8, 8)
     assert not all(torch.isnan(out[i]).any() for i in range(len(out))), "Output included NaNs"
+    # y = torch.rand((2, 96, 32, 32))
+    # loss = F.mse_loss(y, out[0])
+    # loss.backward()
 
 
 def main():

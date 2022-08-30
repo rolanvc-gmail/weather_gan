@@ -1,4 +1,4 @@
-__pycache__/
+__pycache__/*.pyc
 *.py[cod]
 data/__pycache__/**
 losses/__pycache__/**

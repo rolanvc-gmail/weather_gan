@@ -45,14 +45,26 @@ class AlSampler(nn.Module):
                                  gb_hidden_size=[384, 192, 96, 48])
 
     def forward(self, LCS_outputs, CD_output):
-
-        for i in range(len(LCS_outputs)):
+        """
+        :param LCS_outputs: is [batch_sz, 1, 768, 8, 8] x 18
+        :return: 
+        """
+        batch_sz = 4
+        assert len(LCS_outputs) == 18
+        assert LCS_outputs[0].shape == (batch_sz, 1, 768, 8, 8)
+        assert len(CD_output) == 4
+        # CD_output was reversed...dunno why.
+        assert CD_output[3].shape == (batch_sz, 48, 64, 64)
+        assert CD_output[2].shape == (batch_sz, 96, 32, 32)
+        assert CD_output[1].shape == (batch_sz, 192, 16, 16)
+        assert CD_output[0].shape == (batch_sz, 384, 8, 8)
+        for i in range(len(LCS_outputs)):  # i will run from 0 to 17
             if i == 0:
                 LCS_outputs_data = LCS_outputs[i]
             else:
                 LCS_outputs_data = torch.cat((LCS_outputs_data, LCS_outputs[i]), 1)  # create list of Z from latent conditioning stack
 
-        gru_output = self.ConvGRU(LCS_outputs_data, CD_output)
+        gru_output = self.ConvGRU(LCS_outputs_data, CD_output)  # gru_output shape is [batch_sz, 18, 48, 128, 128]
 
         for i in range(gru_output.shape[1]):
             out = gru_output[:, i]
@@ -77,9 +89,9 @@ def main():
     batch_sz = 4
     sampler = AlSampler()
     z = Variable(Tensor(np.random.normal(0, 1, (batch_sz, 8, 8, 8))))  # latent variable input for latent conditioning stack
+    LCS_output = l_c_stack(z) # LCS_output is (
     x = torch.rand((batch_sz, 4, 1, 256, 256))
     CD_input = torch.unsqueeze(x, 2)
-    LCS_output = l_c_stack(z)
     CD_output = conditioning_stack(CD_input)
     CD_output.reverse()  # to make the largest first
     LCS_output = torch.unsqueeze(LCS_output, 1)
@@ -87,6 +99,7 @@ def main():
 
     out = sampler(LCS_outputs, CD_output)
     print("sampler shape is {}".format(out.shape))
+
 
 if __name__ == "__main__":
     main()

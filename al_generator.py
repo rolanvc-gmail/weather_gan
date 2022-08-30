@@ -31,11 +31,19 @@ class AlGenerator(nn.Module):
         self.sampler = AlSampler()
 
     def forward(self, CD_input, LCS_input):
+        # LCS_input is Tensor(batch_size, 8, 8, 8). this was the sample from the Gaussian Distn
+        # CD_input is Tensor(batch_size, 4, 1, 256, 256)
         CD_input = torch.unsqueeze(CD_input, 2)
+        #  torch.unsqueeze returns a new tensor with a dimension of size one inserted at the specified position.
+        #  CD_input is Tensor(batch_size, 4, 1, 1, 256, 256).
         LCS_output = self.LCStack(LCS_input)
+        # LCS_output is Tensor(batch_size, 768, 8, 8)
         CD_output = self.conditioningStack(CD_input)
+        # CD_output is [ [batch_sz, 48, 64, 64], [batch_sz, 96, 32,32], [batch_sz, 192, 16, 16], [batch_sz, 384, 8, 8]
         CD_output.reverse()  # to make the largest first
+        # CD_output is [[batch_sz, 384, 8, 8],  [batch_sz, 192, 16, 16],[batch_sz, 96, 32,32], [ batch_sz, 48, 64, 64]
         LCS_output = torch.unsqueeze(LCS_output, 1)
+        # LCS_output is Tensor(batch_size, 1, 768, 8,8)
         LCS_outputs = [LCS_output] * 18
         return self.sampler(LCS_outputs, CD_output)
 

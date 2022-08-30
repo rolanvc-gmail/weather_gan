@@ -9,8 +9,7 @@ dimension was dropped.
 
 ### Conditioning Stack
 * AlConditioningStack outputs the correct dimensions per the paper.
-* ConditioningStack doesn't.
-* Therefore, we'll use AlConditioningStack.
+* ConditioningStack also does assuming it is initialized correctly. 
 
 ### Latent Conditioning Stack
 * alLCS seems to take the correct input (8x8x8 draws from a normal distn) 
@@ -21,8 +20,16 @@ but it still generates the correct output (1x768x8x8). **Should investigate this
 
 ### Sampler/Output
 * Revised AlGenerator to move the end code of forward into an `AlSampler` class.
-* will need to investigate the AlSampler class next. 
-* Sampler is a class and seems to generate the correct sizes.
+* will need to investigate the AlSampler class next.
+* AlSampler takes as input:
+  * the reversed output of the conditioning stack 
+      * [ (batch_sz, 384, 8, 8) 
+      * (batch_sz, 192, 16, 16), 
+      * (batch_sz, 96, 32, 32), 
+      * (batch_sz, 48, 64, 64) ]
+  * and the output of the latent conditioning class, a tensor of shape (1x768x768x768)
+
+* Sampler is now class and seems to generate the correct sizes. 
 
 
 

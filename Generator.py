@@ -20,8 +20,20 @@ class Generator(nn.Module):
         self.sampler = sampler
 
     def forward(self, x):
-        conditioning_states = self.conditioning_stack(x)
-        latent_dim = self.latent_stack(x)
+        """
+
+        :param x: [batch_size, 4, 1, 256, 256]
+        :return:
+        """
+        batch_sz = 4
+        assert x.size() == (batch_sz, 4, 1, 256, 256)
+        conditioning_states = self.conditioning_stack(x)  # conditioning_states is
+        # [[batch_sz,48,64,64],[ batch_sz, 96, 32,32], [batch_sz, 192, 16,16], [batch_sz, 384, 8,8]]
+        assert conditioning_states[0].size() == (batch_sz, 48, 64, 64)
+        assert conditioning_states[1].size() == (batch_sz, 96, 32, 32)
+        assert conditioning_states[2].size() == (batch_sz, 192, 16, 16)
+        assert conditioning_states[3].size() == (batch_sz, 384, 8, 8)
+        latent_dim = self.latent_stack(x)  # latent_dim has shape [1,768, 8,8]
         x = self.sampler(conditioning_states, latent_dim)
         return x
 
@@ -36,7 +48,6 @@ def test_generator():
     conditioning_stack = ConditioningStack(input_channels=input_channels, conv_type=conv_type, output_channels=context_channels)
     latent_stack = LatentConditioningStack(shape=(8 * input_channels, output_shape // 32, output_shape // 32), output_channels=latent_channels)
     sampler = Sampler(forecast_steps=forecast_steps, latent_channels=latent_channels, context_channels=context_channels)
-
     model = Generator(conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler).cuda()
     batch_sz = 4
     x = torch.rand((batch_sz, 4, 1, 256, 256)).cuda()
