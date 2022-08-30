@@ -1,12 +1,13 @@
 from abc import ABC
 
-from DMGR import DGMR
+from alDMGR import AlDGMR
 from data_modules import RadarDataset
 from torch.utils.data import DataLoader
 
 
+
 def main():
-    dgmr = DGMR().cuda()
+    dgmr = AlDGMR().cuda()
     radar_dataset = RadarDataset()
 
     train_dataloader = DataLoader(radar_dataset, batch_size=16, shuffle=True)

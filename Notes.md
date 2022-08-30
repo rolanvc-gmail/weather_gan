@@ -8,6 +8,11 @@ This time, it turns out that his generator spits out a shape of (batch, 18, 256,
 dimension was dropped.
 
 ### Conditioning Stack
+* The paper specifies the CS to output
+  * [ (batch_sz, 48, 64, 64)
+        * (batch_sz, 96, 32, 32),
+        * (batch_sz, 192, 16, 16),
+        * (batch_sz, 394, 8, 8) ]
 * AlConditioningStack outputs the correct dimensions per the paper.
 * ConditioningStack also does assuming it is initialized correctly. 
 

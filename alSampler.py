@@ -68,7 +68,9 @@ class AlSampler(nn.Module):
 
         for i in range(gru_output.shape[1]):
             out = gru_output[:, i]
+            # out is Tensor
             out = self.outputStack(out)
+            # out is Tensor
             if i == 0:
                 pred = out
             else:
@@ -99,6 +101,7 @@ def main():
 
     out = sampler(LCS_outputs, CD_output)
     print("sampler shape is {}".format(out.shape))
+    assert out.shape == (batch_sz, 18, 1, 256, 256)
 
 
 if __name__ == "__main__":
