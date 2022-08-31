@@ -25,7 +25,7 @@ class Generator(nn.Module):
         :param x: [batch_size, 4, 1, 256, 256]
         :return:
         """
-        batch_sz = 4
+        batch_sz = 16
         assert x.size() == (batch_sz, 4, 1, 256, 256)
         conditioning_states = self.conditioning_stack(x)  # conditioning_states is
         # [[batch_sz,48,64,64],[ batch_sz, 96, 32,32], [batch_sz, 192, 16,16], [batch_sz, 384, 8,8]]
