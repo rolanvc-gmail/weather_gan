@@ -118,8 +118,8 @@ class DGMR(nn.Module):
             td_opt.step()
 
         # Optimize generator
-        z = Variable(Tensor(np.random.normal(0, 1, (16, 8, 8, 8))))  # latent variable input for latent conditioning stack
-        gen_predictions = self.generator(images_data, z)
+        # z = Variable(Tensor(np.random.normal(0, 1, (16, 8, 8, 8))))  # latent variable input for latent conditioning stack
+        gen_predictions = self.generator(images_data )
         sd_fake_predictions = self.spatial_discriminator(gen_predictions)
         gen_td_data = torch.cat([images_data, gen_predictions], dim=1)
         td_predictions = self.temporal_discriminator(gen_td_data)
