@@ -46,6 +46,7 @@ class AlGenerator(nn.Module):
         # LCS_output is Tensor(batch_size, 1, 768, 8,8)
         LCS_outputs = [LCS_output] * 18
         output = self.sampler(LCS_outputs, CD_output)
+        print("generator output shape is:{}".format(output.shape))
         return output
 
 
