@@ -45,7 +45,8 @@ class AlGenerator(nn.Module):
         LCS_output = torch.unsqueeze(LCS_output, 1)
         # LCS_output is Tensor(batch_size, 1, 768, 8,8)
         LCS_outputs = [LCS_output] * 18
-        return self.sampler(LCS_outputs, CD_output)
+        output = self.sampler(LCS_outputs, CD_output)
+        return output
 
 
 

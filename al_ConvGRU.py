@@ -1,8 +1,10 @@
 import torch
 from torch import nn
 import numpy as np
+from torch.nn import functional as F
 from al_spectral_norm import AlSpectralNorm
 from al_gblock_up import AlGBlockUp, AlGBlock
+
 
 
 class ConvGRUCell(nn.Module):  # modified GRU cell from original code
@@ -73,7 +75,7 @@ class SequenceGRU(nn.Module):
 
 
 class AlConvGRU(nn.Module):
-    def __init__(self, x_dim, h_dim, kernel_sizes, num_layers, gb_hidden_size):  # ls_dim is [768, 384, 192, 96]; cs_dim is [384, 192, 96, 48]
+    def __init__(self, x_dim, h_dim, kernel_sizes, num_layers, gb_hidden_size):  # x_dim is [768, 384, 192, 96]; h_dim is [384, 192, 96, 48]; num_layers=4;
         super().__init__()
 
         if type(x_dim) != list:
