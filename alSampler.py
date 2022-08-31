@@ -49,7 +49,7 @@ class AlSampler(nn.Module):
         :param LCS_outputs: is [batch_sz, 1, 768, 8, 8] x 18
         :return: 
         """
-        batch_sz = 4
+        batch_sz = 16
         assert len(LCS_outputs) == 18
         assert LCS_outputs[0].shape == (batch_sz, 1, 768, 8, 8)
         assert len(CD_output) == 4

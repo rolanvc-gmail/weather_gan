@@ -7,6 +7,9 @@ from torch.utils.data import DataLoader
 
 
 def main():
+    print("********************")
+    print("*** Running AL Code")
+    print("********************")
     dgmr = AlDGMR().cuda()
     radar_dataset = RadarDataset()
 

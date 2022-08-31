@@ -6,6 +6,9 @@ from torch.utils.data import DataLoader
 
 
 def main():
+    print("********************")
+    print("*** Running RVC DGMR Code")
+    print("********************")
     dgmr = DGMR().cuda()
     radar_dataset = RadarDataset()
 
