@@ -47,6 +47,8 @@ class AlGenerator(nn.Module):
         LCS_outputs = [LCS_output] * 18
         output = self.sampler(LCS_outputs, CD_output)
         print("generator output shape is:{}".format(output.shape))
+        output = torch.unsqueeze(output, 2)
+        print("generator output shape is:{}".format(output.shape))
         return output
 
 
