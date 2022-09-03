@@ -5,8 +5,8 @@ from LatentConditioningStack import LatentConditioningStack
 from Sampler import Sampler
 # from Generator import Generator
 from al_generator import AlGenerator
-from SpatialDiscriminator import SpatialDiscriminator
-from TemporalDiscriminator import TemporalDiscriminator
+from al_SpatDiscriminator import AlSpatialDiscriminator
+from al_TempDiscriminator import AlTemporalDiscriminator
 import random
 from torch import nn
 from torch.autograd import Variable
@@ -71,9 +71,10 @@ class AlDGMR(nn.Module):
 
         self.generator = AlGenerator(24)
         num_spatial_frames = 8
-        self.spatial_discriminator = SpatialDiscriminator(input_channels=input_channels, num_time_steps=num_spatial_frames, conv_type=conv_type)
-        self.temporal_discriminator = TemporalDiscriminator(input_channels=input_channels, conv_type=conv_type)
-
+        #  self.spatial_discriminator = SpatialDiscriminator(input_channels=input_channels, num_time_steps=num_spatial_frames, conv_type=conv_type)
+        self.spatial_discriminator = AlSpatialDiscriminator()
+        # self.temporal_discriminator = TemporalDiscriminator(input_channels=input_channels, conv_type=conv_type)
+        self.temporal_discriminator = AlTemporalDiscriminator()
         self.automatic_optimization = False  # Use PyLightning's Manual Optimization.
         torch.autograd.set_detect_anomaly(True)
 

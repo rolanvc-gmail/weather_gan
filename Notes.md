@@ -38,7 +38,7 @@ but it still generates the correct output (1x768x8x8). **Should investigate this
 
 
 
-# Aug 31, 2022
+# Aug 31, 2022 (morning)
 ## The Problem
 We've more or less narrowed down the problem to the Sampler. AL's code doesn't run because its
 sampler outputs now outputs batchx22x1x256x256 but was originally expected to ouput
@@ -47,5 +47,13 @@ RVC code base crashes in the sampler when doing backward() for the 2nd step.
 
 ### Next step:
 study both samplers and compare and contrast.
+
+
+# Aug 31, 2022 (evening)
+## The Problem
+So I've essentially run my code using AL's generator. Still saw same problem: 'Function ConvolutionBackward0' returned nan values in its 1th output.
+
+## Next Step:
+Try swapping discriminators, too. The objective is to get our implementation running.
 
 
