@@ -24,7 +24,6 @@ class AlTemporalDiscriminator(nn.Module):
         x = x[:, :, T_H[0]:T_H[0] + 128, T_W[0]:T_W[0] + 128]  # I ADDED THIS
         # x is now 2, 22, 128, 128
         x = space_to_depth(x, 2)
-        print("input to self.DBlock3D_1 is shape:{}".format(x.shape))
         x = self.DBlock3D_1(x)
 
         x = self.DBlock3D_2(x)
