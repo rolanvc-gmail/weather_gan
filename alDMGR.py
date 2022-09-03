@@ -94,7 +94,7 @@ class AlDGMR(nn.Module):
             s_sd = random.sample(range(0, 18), 8)
 
             z = Variable(Tensor(np.random.normal(0, 1, (16, 8, 8, 8))))  # latent variable input for latent conditioning stack
-            predictions = self.generator(images_data, z)  # predictions should be 16x18x256x256x1
+            predictions = self.generator(images_data, z)  # predictions are 16x18x256x256
             sd_score_predictions = self.spatial_discriminator(predictions[:, s_sd])  # we only use 8 of 18 images to get sd_score, sd_score should be 16x1x1
             sd_score_target_images = self.spatial_discriminator(target_images[:, s_sd])
             sd_loss = torch.mean(nn.ReLU()(1-sd_score_target_images) + nn.ReLU()(1+sd_score_predictions))

@@ -1,7 +1,7 @@
 from abc import ABC
 
 from alDMGR import AlDGMR
-from data_modules import RadarDataset
+from al_data_modules import AlRadarDataset
 from torch.utils.data import DataLoader
 
 
@@ -11,7 +11,7 @@ def main():
     print("*** Running AL Code")
     print("********************")
     dgmr = AlDGMR().cuda()
-    radar_dataset = RadarDataset()
+    radar_dataset = AlRadarDataset()
 
     train_dataloader = DataLoader(radar_dataset, batch_size=16, shuffle=True)
 
@@ -19,7 +19,6 @@ def main():
         print("Step # {}".format(b))
         batch_data = next(iter(train_dataloader))
         dgmr.training_step(batch_data)
-
 
 
 if __name__ == "__main__":
