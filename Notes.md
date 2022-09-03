@@ -56,4 +56,20 @@ So I've essentially run my code using AL's generator. Still saw same problem: 'F
 ## Next Step:
 Try swapping discriminators, too. The objective is to get our implementation running.
 
+# Sept 3, 2002
+## The Problem
+I'm currently using Al's Discriminators now. An issue just came up:
+
+    td_score_whole_real = self.temporal_discriminator(sequence_whole_real)
+    return forward_call(*input, **kwargs)
+    x = self.DBlock3D_1(x)
+    return forward_call(*input, **kwargs)
+    x1 = self.conv1(x)
+    return forward_call(*input, **kwargs)
+    RuntimeError: Given groups=1, weight of size [48, 4, 1, 1, 1], expected input[1, 16, 88, 64, 64] to have 4 channels, but got 16 channels instead
+
+Since this is inside the Al's Temporal Discriminator, I just need to create a unit test for it to reproduce the error.
+Using the other Temporal Discriminator wouldn't make sense since it accepts (b x i x 256 x 256 x 1).
+
+
 
