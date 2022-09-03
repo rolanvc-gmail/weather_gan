@@ -49,15 +49,15 @@ class AlSampler(nn.Module):
         :param LCS_outputs: is [batch_sz, 1, 768, 8, 8] x 18
         :return: 
         """
-        batch_sz = 16
-        assert len(LCS_outputs) == 18
-        assert LCS_outputs[0].shape == (batch_sz, 1, 768, 8, 8)
-        assert len(CD_output) == 4
+        # batch_sz = 4
+        # assert len(LCS_outputs) == 18
+        # assert LCS_outputs[0].shape == (batch_sz, 1, 768, 8, 8)
+        # assert len(CD_output) == 4
         # CD_output was reversed...dunno why.
-        assert CD_output[3].shape == (batch_sz, 48, 64, 64)
-        assert CD_output[2].shape == (batch_sz, 96, 32, 32)
-        assert CD_output[1].shape == (batch_sz, 192, 16, 16)
-        assert CD_output[0].shape == (batch_sz, 384, 8, 8)
+        # assert CD_output[3].shape == (batch_sz, 48, 64, 64)
+        # assert CD_output[2].shape == (batch_sz, 96, 32, 32)
+        # assert CD_output[1].shape == (batch_sz, 192, 16, 16)
+        # assert CD_output[0].shape == (batch_sz, 384, 8, 8)
         for i in range(len(LCS_outputs)):  # i will run from 0 to 17
             if i == 0:
                 LCS_outputs_data = LCS_outputs[i]
